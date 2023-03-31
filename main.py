@@ -2,6 +2,8 @@ import os
 import telegram
 import openai
 import PyPDF2
+import telegram.ext
+
 
 # Set up Telegram bot and OpenAI API credentials
 bot = telegram.Bot(token='6114848997:AAHL6RZUAIV-V6gwQaj6S3KrwnGJwl4x_Y4')
