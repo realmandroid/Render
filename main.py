@@ -1,7 +1,10 @@
+import os
+import telegram
 import openai
 import PyPDF2
 
-# Set up OpenAI API credentials
+# Set up Telegram bot and OpenAI API credentials
+bot = telegram.Bot(token='6114848997:AAHL6RZUAIV-V6gwQaj6S3KrwnGJwl4x_Y4')
 openai.api_key = "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"
 
 # Define function to generate text from ChatGPT
@@ -24,19 +27,28 @@ def convert_to_pdf(text):
     with open('output.pdf', 'wb') as output:
         pdf_writer.write(output)
 
-# Main function to interact with ChatGPT and generate PDF response
-def main():
-    # Get input from user
-    prompt = input("Enter your prompt: ")
+# Define function to handle incoming messages
+def handle_message(update, context):
+    # Get the message text
+    message_text = update.message.text
 
     # Generate response from ChatGPT
-    response_text = generate_text(prompt)
+    response_text = generate_text(message_text)
 
     # Convert response to PDF
     convert_to_pdf(response_text)
 
-    # Print success message
-    print("PDF file generated successfully!")
+    # Send the PDF file back to the user
+    with open('output.pdf', 'rb') as f:
+        bot.send_document(chat_id=update.effective_chat.id, document=f)
 
-if __name__ == '__main__':
-    main()
+    # Print success message
+    print("PDF file sent successfully!")
+
+# Set up the Telegram message handler
+updater = telegram.ext.Updater(token='6114848997:AAHL6RZUAIV-V6gwQaj6S3KrwnGJwl4x_Y4', use_context=True)
+dispatcher = updater.dispatcher
+dispatcher.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.text, handle_message))
+
+# Start the bot
+updater.start_polling()
