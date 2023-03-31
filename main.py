@@ -6,7 +6,7 @@ import telegram.ext
 
 
 # Set up Telegram bot and OpenAI API credentials
-bot = telegram.Bot(token='6114848997:AAHL6RZUAIV-V6gwQaj6S3KrwnGJwl4x_Y4')
+bot = telegram.Bot(token='6114848997:AAHqgjaMqMzFwszB36IiEPrvSZruNh0ktBM')
 openai.api_key = "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"
 
 # Define function to generate text from ChatGPT
@@ -48,7 +48,7 @@ def handle_message(update, context):
     print("PDF file sent successfully!")
 
 # Set up the Telegram message handler
-updater = telegram.ext.Updater(token='6114848997:AAHL6RZUAIV-V6gwQaj6S3KrwnGJwl4x_Y4', use_context=True)
+updater = telegram.ext.Updater(token='6114848997:AAHqgjaMqMzFwszB36IiEPrvSZruNh0ktBM', use_context=True)
 dispatcher = updater.dispatcher
 dispatcher.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.text, handle_message))
 
