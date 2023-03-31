@@ -1,56 +1,56 @@
 import os
+import requests
 import telegram
+import pdfkit
 import openai
-import PyPDF2
-import telegram.ext
+from flask import Flask, request, jsonify
 
 
-# Set up Telegram bot and OpenAI API credentials
-bot = telegram.Bot(token='6114848997:AAHqgjaMqMzFwszB36IiEPrvSZruNh0ktBM')
-openai.api_key = "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"
+# Initialize Flask app
+app = Flask(__name__)
 
-# Define function to generate text from ChatGPT
-def generate_text(prompt):
-    response = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=prompt,
-        max_tokens=1024,
-        n=1,
-        stop=None,
-        temperature=0.7,
-    )
+# Load environment variables
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN') or "6114848997:AAHqgjaMqMzFwszB36IiEPrvSZruNh0ktBM"
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY') or "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"
 
-    return response.choices[0].text.strip()
+# Initialize Telegram bot
+bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
-# Define function to convert text to PDF
-def convert_to_pdf(text):
-    pdf_writer = PyPDF2.PdfFileWriter()
-    pdf_writer.addPage(PyPDF2.pdf.PageObject.createFromString(text))
-    with open('output.pdf', 'wb') as output:
-        pdf_writer.write(output)
+# Initialize OpenAI API
+openai.api_key = OPENAI_API_KEY
 
-# Define function to handle incoming messages
-def handle_message(update, context):
-    # Get the message text
+# Set the webhook for the Telegram bot
+def set_webhook():
+    url = "https://api.telegram.org/bot{}/setWebhook".format(TELEGRAM_TOKEN)
+    webhook_url = "https://your-app-name.onrender.com/{}".format(TELEGRAM_TOKEN)
+    response = requests.post(url, data={"url": webhook_url})
+    print(response.text)
+
+if __name__ == '__main__':
+    set_webhook()
+
+# Define the Flask route for handling Telegram webhook events
+@app.route('/{}'.format(TELEGRAM_TOKEN), methods=['POST'])
+def respond():
+    # Parse the incoming message from Telegram
+    update = telegram.Update.de_json(request.get_json(force=True), bot)
+
+    # Get the user ID and message text
+    user_id = update.message.chat.id
     message_text = update.message.text
 
-    # Generate response from ChatGPT
-    response_text = generate_text(message_text)
+    # Call ChatGPT to generate a response
+    prompt = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. User: {}\nAI:".format(message_text)
+    response = openai.Completion.create(engine="davinci", prompt=prompt, max_tokens=1024, n=1,stop=None,temperature=0.5).choices[0].text.strip()
 
-    # Convert response to PDF
-    convert_to_pdf(response_text)
+    # Generate a PDF file with the response text
+    pdfkit.from_string(response, '{}.pdf'.format(user_id))
 
     # Send the PDF file back to the user
-    with open('output.pdf', 'rb') as f:
-        bot.send_document(chat_id=update.effective_chat.id, document=f)
+    with open('{}.pdf'.format(user_id), 'rb') as f:
+        bot.send_document(chat_id=user_id, document=f)
 
-    # Print success message
-    print("PDF file sent successfully!")
+    return 'OK'
 
-# Set up the Telegram message handler
-updater = telegram.ext.Updater(token='6114848997:AAHqgjaMqMzFwszB36IiEPrvSZruNh0ktBM', use_context=True)
-dispatcher = updater.dispatcher
-dispatcher.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.text, handle_message))
-
-# Start the bot
-updater.start_polling()
+if __name__ == '__main__':
+    app.run()
