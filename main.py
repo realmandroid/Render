@@ -22,7 +22,7 @@ openai.api_key = OPENAI_API_KEY
 # Set the webhook for the Telegram bot
 def set_webhook():
     url = "https://api.telegram.org/bot{}/setWebhook".format(TELEGRAM_TOKEN)
-    webhook_url = "https://your-app-name.onrender.com/{}".format(TELEGRAM_TOKEN)
+    webhook_url = "https://telegram-pdf.onrender.com/{}".format(TELEGRAM_TOKEN)
     response = requests.post(url, data={"url": webhook_url})
     print(response.text)
 
