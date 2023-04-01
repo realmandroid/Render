@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 # Load environment variables
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN') or "6114848997:AAHqgjaMqMzFwszB36IiEPrvSZruNh0ktBM"
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY') or "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"
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY') 
 
 # Initialize Telegram bot
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
